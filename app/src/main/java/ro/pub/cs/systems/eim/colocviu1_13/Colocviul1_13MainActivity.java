@@ -2,7 +2,10 @@ package ro.pub.cs.systems.eim.colocviu1_13;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,7 +17,8 @@ public class Colocviul1_13MainActivity extends AppCompatActivity {
 
     private Button northButton, southButton, eastButton, westButton, navigateButton;
     public int ButtonClicks = 0;
-
+    private IntentFilter intentFilter = new IntentFilter();
+    private int serviceStatus = 14;
     private ButtonClickListener buttonClickListener = new ButtonClickListener();
     private class ButtonClickListener implements View.OnClickListener {
 
@@ -52,6 +56,13 @@ public class Colocviul1_13MainActivity extends AppCompatActivity {
                     startActivityForResult(intent, 101);
                     break;
             }
+
+            if (ButtonClicks > 4) {
+                Intent intent = new Intent(getApplicationContext(), Colocviu1_13Service.class);
+                intent.putExtra("Directions", value);
+                getApplicationContext().startService(intent);
+                serviceStatus = 20;
+            }
         }
     }
 
@@ -79,8 +90,17 @@ public class Colocviul1_13MainActivity extends AppCompatActivity {
                 ButtonClicks = 0;
             }
         }
+        intentFilter.addAction("ro.pub.cs.systems.eim.colocviu1_13.Colocviu1_13Service.string");
         Log.d("[onCreate]",  "Got " + ButtonClicks + " clicks so far");
 
+    }
+
+    private MessageBroadcastReceiver messageBroadcastReceiver = new MessageBroadcastReceiver();
+    private class MessageBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("[onReceive Main]:", intent.getStringExtra("Directions"));
+        }
     }
 
     @Override
@@ -103,5 +123,12 @@ public class Colocviul1_13MainActivity extends AppCompatActivity {
         if (requestCode == 101) {
             Toast.makeText(this, "The activity returned with result " + resultCode, Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Intent intent = new Intent(this, Colocviu1_13Service.class);
+        stopService(intent);
+        super.onDestroy();
     }
 }
