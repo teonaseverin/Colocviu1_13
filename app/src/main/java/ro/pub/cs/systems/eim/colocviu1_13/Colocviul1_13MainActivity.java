@@ -2,11 +2,13 @@ package ro.pub.cs.systems.eim.colocviu1_13;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Colocviul1_13MainActivity extends AppCompatActivity {
 
@@ -42,6 +44,13 @@ public class Colocviul1_13MainActivity extends AppCompatActivity {
                     ButtonClicks += 1;
                     text.setText(value);
                     break;
+                case R.id.navigate:
+                    Intent intent = new Intent(getApplicationContext(), Colocviu1_13SeconderyActivity.class);
+                    ButtonClicks = 0;
+                    text.setText("");
+                    intent.putExtra("Directions", value);
+                    startActivityForResult(intent, 101);
+                    break;
             }
         }
     }
@@ -61,6 +70,7 @@ public class Colocviul1_13MainActivity extends AppCompatActivity {
         southButton.setOnClickListener(buttonClickListener);
         eastButton.setOnClickListener(buttonClickListener);
         westButton.setOnClickListener(buttonClickListener);
+        navigateButton.setOnClickListener(buttonClickListener);
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey("buttonClicks")) {
@@ -85,6 +95,13 @@ public class Colocviul1_13MainActivity extends AppCompatActivity {
             ButtonClicks = savedInstanceState.getInt("buttonClicks");
         } else {
             ButtonClicks = 0;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 101) {
+            Toast.makeText(this, "The activity returned with result " + resultCode, Toast.LENGTH_LONG).show();
         }
     }
 }
